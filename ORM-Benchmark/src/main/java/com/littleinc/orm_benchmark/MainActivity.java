@@ -30,6 +30,7 @@ import android.widget.Button;
 import com.littleinc.orm_benchmark.BenchmarkExecutable.Task;
 import com.littleinc.orm_benchmark.greendao.GreenDaoExecutor;
 import com.littleinc.orm_benchmark.ormlite.ORMLiteExecutor;
+import com.littleinc.orm_benchmark.realm.RealmExecutor;
 import com.littleinc.orm_benchmark.sqlite.SQLiteExecutor;
 import com.littleinc.orm_benchmark.util.Util;
 
@@ -45,7 +46,7 @@ public class MainActivity extends FragmentActivity {
 
     private BenchmarkExecutable[] mOrms = new BenchmarkExecutable[] {
             SQLiteExecutor.INSTANCE, ORMLiteExecutor.INSTANCE,
-            GreenDaoExecutor.INSTANCE };
+            GreenDaoExecutor.INSTANCE, RealmExecutor.INSTANCE};
 
     private SparseArray<Map<Task, List<Long>>> mGlobalResults;
 
