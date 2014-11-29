@@ -9,7 +9,7 @@ tableName=user
 fieldName=mMessage
 columnName=message_id
 foreign=true
-foreignAutoRefresh=true
+foreignAutoRefresh=false
 # --field-end--
 # --field-start--
 fieldName=mId
@@ -82,7 +82,7 @@ canBeNull=false
 fieldName=mReaders
 columnName=readers
 foreignCollection=true
-foreignCollectionEager=true
+foreignCollectionEager=false
 foreignCollectionColumnName=readers
 # --field-end--
 # --table-fields-end--

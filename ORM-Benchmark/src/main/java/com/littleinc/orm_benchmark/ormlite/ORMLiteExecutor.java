@@ -5,11 +5,13 @@ import static com.littleinc.orm_benchmark.util.Util.getRandomString;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
@@ -39,7 +41,7 @@ public enum ORMLiteExecutor implements BenchmarkExecutable {
 
     @Override
     public long writeWholeData() throws SQLException {
-        List<User> users = new LinkedList<User>();
+        final List<User> users = new LinkedList<User>();
         for (int i = 0; i < NUM_USER_INSERTS; i++) {
             User newUser = new User();
             newUser.setLastName(getRandomString(10));
@@ -48,7 +50,7 @@ public enum ORMLiteExecutor implements BenchmarkExecutable {
             users.add(newUser);
         }
 
-        List<Message> messages = new LinkedList<Message>();
+        final List<Message> messages = new LinkedList<Message>();
         for (int i = 0; i < NUM_MESSAGE_INSERTS; i++) {
             Message newMessage = new Message();
             newMessage.setCommandId(i);
@@ -69,19 +71,37 @@ public enum ORMLiteExecutor implements BenchmarkExecutable {
         db.beginTransaction();
 
         try {
-            for (User user : users) {
-                User.getDao().createOrUpdate(user);
-            }
+            final Dao<User, Long> userLongDao = User.getDao();
+            userLongDao.callBatchTasks(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    for (User user : users) {
+                        userLongDao.create(user);
+                    }
+                    return null;
+                }
+            });
+
             Log.d(ORMLiteExecutor.class.getSimpleName(), "Done, wrote "
                     + NUM_USER_INSERTS + " users");
 
-            for (Message message : messages) {
-                Message.getDao().createOrUpdate(message);
-            }
+            final Dao<Message, Long> messageLongDao = Message.getDao();
+            messageLongDao.callBatchTasks(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    for (Message message : messages) {
+                        messageLongDao.create(message);
+                    }
+                    return null;
+                }
+            });
+
             Log.d(ORMLiteExecutor.class.getSimpleName(), "Done, wrote "
                     + NUM_MESSAGE_INSERTS + " messages");
 
             db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             db.endTransaction();
         }
